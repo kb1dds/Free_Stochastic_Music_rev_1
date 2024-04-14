@@ -100,14 +100,14 @@ C                                                                       XEN   84
 10	  I=I+1                                                             XEN   89
 C                                             	                        XEN   90
 C OPENS DATA FILE       
-      OPEN(UNIT=1,FILE="DATA.TXT")
+      OPEN(UNIT=1,NAME='ATREES.TXT',TYPE='OLD')
       READ(1,20) (TETA(I),I=1,256)                                      XEN   91
 20	  FORMAT(12F6.6)                                                    XEN   92
 C Z1(I) AND Z2(I) ARE READ FROM DATA.TXT IN ALTERNATION
       READ(1,30) (Z1(I),Z2(I),I=1,8)                                    XEN   93
 30	  FORMAT(6(F3.2,F9.8)/F3.2,F9.8,E6.2,F9.8)                          XEN   94
 C OPENS FILE FOR OUTPUT
-      OPEN(UNIT=2,FILE="OUTPUT.TXT",FORM="FORMATTED")
+      OPEN(UNIT=2,NAME='OUTPUT.TXT',FORM='FORMATTED')
 C WRITES TO FILE: ALL OF THE TETA ARRAY, ALL OF Z1, ALL OF Z2
       WRITE(2,40) TETA,Z1,Z2                                            XEN   95
 40	  FORMAT(' THE TETA TABLE = ',/,21(12F10.6,/),4F10.6,//,            XEN   96
@@ -140,7 +140,8 @@ C                                                                       XEN  144
 C     IF ALEA IS NON-ZERO, THE RANDOM NUMBER IS GENERATED FROM THE TIME XEN  150
 C     WHEN THE FOLLOWING INSTRUCTION IS EXECUTED. IF ALEA IS NON-ZERO   XEN  151
 C     EACH RUN OF THIS PROGRAM WILL PRODUCE DIFFERENT OUTPUT DATA.      XEN  152
-      IF(ALEA.NE.0.0) CALL SRAND(TIME())                                XEN  153
+      IF(ALEA.NE.0.0) II=TIME()                                         XEN  153
+      JJ=0
       WRITE(2,830)                                                      XEN  154
       DO 130 I=1,KTR                                                    XEN  155
       Y=0.0                                                             XEN  156
@@ -199,7 +200,7 @@ C     INTERPOLATED WRITE STATEMENT BELOW
       IF(KT1.NE.0) WRITE(2,210) AMAX                                    XEN  190
 210	  FORMAT(6E15.8)                                                    XEN  191
 C     INTERPOLATED DATE AND TIME STAMP HERE
-      WRITE(2,211) CTIME(TIME())
+      WRITE(2,211) 'TIME/NOW'
 211   FORMAT(/, A25)
 C                                                                       XEN  192
       JW=1                                                              XEN  193
@@ -212,8 +213,8 @@ C                                                                       XEN  199
       KNA=0                                                             XEN  200
       K1=0                                                              XEN  201
 C     ALGORITHM FOR DETERMINING THE LENGTH (A) OF THE SECTION OF MUSIC
-230	  X1=RAND(0)                                                        XEN  202
-      A=-DELTA*LOG(X1)                                                  XEN  203
+230	  X1=RAN(II,JJ)                                                     XEN  202
+      A=-DELTA*ALOG(X1)                                                 XEN  203
       IF(A.LE.ALIM) GO TO 250                                           XEN  204
       IF(K1.GE.KT2) GO TO 240                                           XEN  205
       K1=K1+1                                                           XEN  206
@@ -222,11 +223,11 @@ C     ALGORITHM FOR DETERMINING THE LENGTH (A) OF THE SECTION OF MUSIC
       X1=0.0                                                            XEN  209
 C     ALGORITHM TO CALCULATE DENSITY (DA) AND NUMBER OF SOUNDS (NA)
 250	  K2=0                                                              XEN  210
-260	  X2=RAND(0)                                                        XEN  211
+260	  X2=RAN(II,JJ)                                                     XEN  211
       IF(JW.GT.1) GO TO 280                                             XEN  212
 270	  UX=R*X2                                                           XEN  213
       GO TO 310                                                         XEN  214
-280	  IF(RAND(0).GE.0.5) GO TO 290                                      XEN  215
+280	  IF(RAN(II,JJ).GE.0.5) GO TO 290                                   XEN  215
       UX=UPR+R*(1.0-SQRT(X2))                                           XEN  216
       GO TO 300                                                         XEN  217
 290	  UX=UPR-R*(1.0-SQRT(X2))                                           XEN  218
@@ -294,11 +295,11 @@ C393	  FORMAT(' BEFORE LINE 269, TA = ',E20.8)
 C     INTERPOLATED WRITE STATEMENT HERE
 C      WRITE(2,401) N
 C401	  FORMAT(' BEFORE LINE 271, N = ',I8)
-      X=RAND(0)                                                         XEN  271
+      X=RAN(II,JJ)                                                         XEN  271
 C     INTERPOLATED WRITE STATEMENT HERE
 C      WRITE(2,402) X
 C402	  FORMAT(' BEFORE LINE 272, X = ',E20.8)      
-      T=-LOG(X)/DA                                                      XEN  272
+      T=-ALOG(X)/DA                                                     XEN  272
 C     INTERPOLATED WRITE STATEMENT HERE
 C      WRITE(2,403) T
 C403	  FORMAT(' BEFORE LINE 273, T = ',E20.8)      
@@ -311,13 +312,13 @@ C404	  FORMAT(' BEFORE LINE 274, TA = ',E20.8)
 C                                                                       XEN  276
 C     PART 5, DEFINE CLASS AND INSTRUMENT NUMBER TO EACH POINT OF A     XEN  277
 C                                                                       XEN  278
-      X1=RAND(0)                                                        XEN  279
+      X1=RAN(II,JJ)                                                        XEN  279
       DO 430 I=1,KTR                                                    XEN  280
 430	  IF(X1.LE.S(I)) GO TO 440                                          XEN  281
       I=KTR                                                             XEN  282
 440	  KTS=NT(I)                                                         XEN  283
       KR=I                                                              XEN  284
-      X2=RAND(0)                                                        XEN  285
+      X2=RAN(II,JJ)                                                        XEN  285
       DO 450 J=1,KTS                                                    XEN  286
       SPIEN=SPN(KR,J)                                                   XEN  287
       INSTRM=J                                                          XEN  288
@@ -343,11 +344,11 @@ C                                                                       XEN  296
       HPR=H(KR,INSTRM)                                                  XEN  308
       K=0                                                               XEN  309
       IF(HPR.LE.0.0) GO TO 520                                          XEN  310
-510	  X=RAND(0)                                                         XEN  311
+510	  X=RAN(II,JJ)                                                         XEN  311
       IF(N.GT.1) GO TO 530                                              XEN  312
 520	  HX=HINF+HM*X                                                      XEN  313
       GO TO 560                                                         XEN  314
-530	  IF(RAND(0).GE.0.5) GO TO 540                                      XEN  315
+530	  IF(RAN(II,JJ).GE.0.5) GO TO 540                                      XEN  315
       HX=HPR+HM*(1.0-SQRT(X))                                           XEN  316
       GO TO 550                                                         XEN  317
 540	  HX=HPR-HM*(1.0-SQRT(X))                                           XEN  318
@@ -370,7 +371,7 @@ C                                                                       XEN  328
       XLAMBDA=0.0                                                       XEN  335
       GO TO 740                                                         XEN  336
 580	  KX=1                                                              XEN  337
-590	  X1=RAND(0)                                                        XEN  338
+590	  X1=RAN(II,JJ)                                                        XEN  338
       IF(X1-0.9997) 600,650,680                                         XEN  339
 600	  I=128                                                             XEN  340
       DO 630 IX=1,7                                                     XEN  341
@@ -401,13 +402,13 @@ C                                                                       XEN  328
       GO TO (720,760),KX                                                XEN  366
 720	  ALFA(1)=A10+XALOG                                                 XEN  367
       ALFA(3)=A30-XALOG                                                 XEN  368
-      X2=RAND(0)                                                        XEN  369
+      X2=RAN(II,JJ)                                                        XEN  369
       ALFA(2)=A17+A35*X2                                                XEN  370
       DO 730 I=1,3                                                      XEN  371
       VIGL(I)=INT(ALFA(I)*XLAMBDA+0.5)                                  XEN  372
       IF(VIGL(I).LT.0.0) VIGL(I)=-VIGL(I)                               XEN  373
       IF(VIGL(I).GT.VITLIM) VIGL(I)=VITLIM                              XEN  374
-730	  IF(RAND(0).LT.0.5) VIGL(I)=-VIGL(I)                               XEN  375
+730	  IF(RAN(II,JJ).LT.0.5) VIGL(I)=-VIGL(I)                               XEN  375
 740	  IF(KT1.NE.0) WRITE(2,750) X1,X2,XLAMBDA,VIGL                      XEN  376
 750	  FORMAT(6E19.8)                                                    XEN  377
 C                                                                       XEN  378
@@ -416,15 +417,15 @@ C                                                                       XEN  380
       IF((KR.EQ.7).OR.(KR.EQ.8)) GO TO 780                              XEN  381
       ZMAX=AMAX(KR)/(V3*PIEN)                                           XEN  382
       G=GN(KR,INSTRM)                                                   XEN  383
-      RO=G/LOG(ZMAX)                                                    XEN  384
+      RO=G/ALOG(ZMAX)                                                   XEN  384
       QPNDA=1.0/(Q(KR)*PIEN*DA)                                         XEN  385
-      GE=ABS(RO*LOG(QPNDA))                                             XEN  386
+      GE=ABS(RO*ALOG(QPNDA))                                            XEN  386
       XMU=GE/2.0                                                        XEN  387
       SIGMA=GE/4.0                                                      XEN  388
       KX=2                                                              XEN  389
       GO TO 590                                                         XEN  390
 760	  TAU=SIGMA*XLAMBDA*1.4142                                          XEN  391
-      X2=RAND(0)                                                        XEN  392
+      X2=RAN(II,JJ)                                                        XEN  392
       IF(X2.GE.0.5) GO TO 770                                           XEN  393
       XDUR=XMU+TAU                                                      XEN  394
       GO TO 790                                                         XEN  395
@@ -436,7 +437,7 @@ C                                                                       XEN  380
 C                                                                       XEN  401
 C     PART 9, DEFINE INTENSITY FORM TO EACH POINT OF A                  XEN  402
 C                                                                       XEN  403
-      IFORM=INT(RAND(0)*BF+0.5)                                         XEN  404
+      IFORM=INT(RAN(II,JJ)*BF+0.5)                                         XEN  404
       IF(KT1.EQ.0) GO TO 840                                            XEN  405
       IF(NLINE.LT.KNL) GO TO 810                                        XEN  406
       IF(NLINE.EQ.KNL) GO TO 820                                        XEN  407
@@ -484,4 +485,4 @@ C CLOSES FILES
       CLOSE(UNIT=1)
       CLOSE(UNIT=2)
       END                                                               XEN  448
-      
+                                                                                                                                                                                                                                                                                                                                                                                                                              
